@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "finances-api"
+version = "0.1.0"
+description = "Starts API Server to interact with basic methods"
+authors = ["André Gustavo Lucas <20599467+andrelucassc@users.noreply.github.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.95"
+pydantic = "^1.10"
+cx-Oracle-async = "^0.3"
+loguru = "^0.6"
+uvicorn = {extras = ["standard"], version = "^0.21.1"}
+
+[tool.poetry.group.dev.dependencies]
+pytest = "*"
+black = "*"
+flake8 = "*"
+isort = "*"
+pre-commit = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
