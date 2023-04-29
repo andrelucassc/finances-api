@@ -65,7 +65,7 @@ async def register_payment(payment: Payment):
                 newid=payment.ID,
                 newitem=payment.ITEM,
                 newdate=datetime.strptime(payment.DATA_PAGAMENTO, "%Y-%m-%d"),
-                newcategory=payment.METODO_PAGAMENTO,
+                newcategory=payment.CATEGORIA,
                 newprice=payment.PRECO_TOTAL,
                 newstore=payment.LOJA,
                 newmethod=payment.METODO_PAGAMENTO,
