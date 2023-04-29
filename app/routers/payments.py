@@ -13,8 +13,6 @@ settings = get_settings()
 
 oracledb.init_oracle_client(lib_dir=settings.db_client_lib)
 
-DEFAULT_DB_NONE = "null"
-
 
 class Payment(BaseModel):
     """Represents one payment in the database"""
@@ -25,18 +23,18 @@ class Payment(BaseModel):
     PRECO_TOTAL: float
     LOJA: str
     METODO_PAGAMENTO: str
-    PRECO_DOLAR: Optional[float] = DEFAULT_DB_NONE
-    PRECO_MOEDA_ALTERNATIVA: Optional[float] = DEFAULT_DB_NONE
-    NOME_MOEDA_ALTERNATIVA: Optional[str] = DEFAULT_DB_NONE
+    PRECO_DOLAR: Optional[float] = None
+    PRECO_MOEDA_ALTERNATIVA: Optional[float] = None
+    NOME_MOEDA_ALTERNATIVA: Optional[str] = None
     NOME_PESSOA_PAGADOR: str = settings.default_payment_user
     FLAG_PAGO: int = 0
-    URL: Optional[str] = DEFAULT_DB_NONE
-    TAGS: Optional[str] = DEFAULT_DB_NONE
-    PRESENTEADO: Optional[str] = DEFAULT_DB_NONE
+    URL: Optional[str] = None
+    TAGS: Optional[str] = None
+    PRESENTEADO: Optional[str] = None
     FLAG_EM_ROTA: int = 0
-    SK_SUBSCRIPTION: Optional[int] = DEFAULT_DB_NONE
-    EMOJI: Optional[str] = DEFAULT_DB_NONE
-    ID: Optional[int] = DEFAULT_DB_NONE
+    SK_SUBSCRIPTION: Optional[int] = None
+    EMOJI: Optional[str] = None
+    ID: Optional[int] = None
 
 
 @router.post("/")
@@ -57,16 +55,16 @@ async def register_payment(payment: Payment):
                 + ", LOJA, METODO_PAGAMENTO, PRECO_DOLAR, PRECO_MOEDA_ALTERNATIVA"
                 + ", NOME_MOEDA_ALTERNATIVA, NOME_PESSOA_PAGADOR, FLAG_PAGO"
                 + ", URL, TAGS, PRESENTEADO, FLAG_EM_ROTA, EMOJI)"
-                + " VALUES ({newid}, '{newitem}', {newdate}, '{newcategory}', {newprice}"
-                + ", '{newstore}', '{newmethod}', {dolar}, {altcoin}, '{altcoinname}'"
-                + ", '{person}', {payed}, '{url}', '{tags}', '{present}', {inroute}, '{emoji}')"
+                + " VALUES (:newid, :newitem, :newdate, :newcategory, :newprice"
+                + ", :newstore, :newmethod, :dolar, :altcoin, :altcoinname"
+                + ", :person, :payed, :url, :tags, :present, :inroute, :emoji)"
             )
             payment.ID = max_id[0][0] + 1
-            # TODO: remove stringified Null values
-            insert = insert_statement.format(
+            cursor.execute(
+                insert_statement,
                 newid=payment.ID,
                 newitem=payment.ITEM,
-                newdate="TO_DATE('" + payment.DATA_PAGAMENTO + "', 'YYYY-MM-DD')",
+                newdate=datetime.strptime(payment.DATA_PAGAMENTO, "%Y-%m-%d"),
                 newcategory=payment.METODO_PAGAMENTO,
                 newprice=payment.PRECO_TOTAL,
                 newstore=payment.LOJA,
@@ -82,7 +80,7 @@ async def register_payment(payment: Payment):
                 inroute=payment.FLAG_EM_ROTA,
                 emoji=payment.EMOJI,
             )
-            cursor.execute(insert)
+
             connection.commit()
             logger.info("Payment registered")
             logger.debug("Payment: {payment}", payment=str(payment))
