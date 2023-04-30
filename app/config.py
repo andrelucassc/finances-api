@@ -13,6 +13,10 @@ class Settings(BaseSettings):
 
     default_payment_user: str
 
+    class Config:
+        env_file = "env"
+        env_file_encoding = "utf-8"
+
 
 @lru_cache(maxsize=None)
 def get_settings() -> Settings:
