@@ -1,7 +1,9 @@
+import json
 from datetime import datetime
 from typing import Optional
 
 import oracledb
+import requests
 from fastapi import APIRouter
 from loguru import logger
 from pydantic import BaseModel
@@ -82,6 +84,28 @@ async def register_payment(payment: Payment):
             )
 
             connection.commit()
+            if settings.pbi_api:
+                response = requests.post(
+                    url=settings.pbi_api,
+                    data=json.dumps(
+                        [
+                            {
+                                "CATEGORIA": payment.CATEGORIA,
+                                "DATA_PAGAMENTO": payment.DATA_PAGAMENTO,
+                                "FLAG_PAGO": payment.FLAG_PAGO,
+                                "ITEM": payment.ITEM,
+                                "LOJA": payment.LOJA,
+                                "METODO_PAGAMENTO": payment.METODO_PAGAMENTO,
+                                "NOME_MOEDA_ALTERNATIVA": payment.NOME_MOEDA_ALTERNATIVA,
+                                "PRECO_MOEDA_ALTERNATIVA": payment.PRECO_MOEDA_ALTERNATIVA,
+                                "PRECO_TOTAL": payment.PRECO_TOTAL,
+                                "TAGS": payment.TAGS,
+                            }
+                        ]
+                    ),
+                )
+                logger.info(f"Payment registered and sent to PBI: {str(response.status_code)}")
+                logger.debug(f"Response: {str(response.text)}")
             logger.info("Payment registered")
             logger.debug("Payment: {payment}", payment=str(payment))
     return {"message": "Payment registered"}

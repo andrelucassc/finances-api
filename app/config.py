@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Union
+from typing import Optional
 
 from pydantic import BaseSettings
 
@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     db_wallet: str
 
     default_payment_user: str
+
+    pbi_api: Optional[str] = None
 
     class Config:
         env_file = "env"
